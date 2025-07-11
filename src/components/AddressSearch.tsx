@@ -117,7 +117,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [searchTerm]);
+  }, [searchTerm, performSearch]);
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
