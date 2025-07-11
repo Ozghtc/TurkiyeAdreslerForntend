@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getFullAddressFromMahalleId } from '../data/dataService';
 import { apiAddressService } from '../services/ApiAddressService';
 
@@ -61,7 +61,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
   }, []);
 
   // Google tarzı arama fonksiyonu
-  const performSearch = async (term: string) => {
+  const performSearch = useCallback(async (term: string) => {
     if (term.length < 2) {
       setResults([]);
       setShowResults(false);
@@ -100,7 +100,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [apiStatus]);
 
   // Debounced search
   useEffect(() => {
