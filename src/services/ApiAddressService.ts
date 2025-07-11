@@ -19,17 +19,14 @@ class ApiAddressService {
   private apiBaseUrl: string;
   private cache: Map<string, ApiSearchResult[]> = new Map();
 
-  constructor() {
-    // Environment variable veya default local URL
-    this.apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-    console.log(`🔗 API Base URL: ${this.apiBaseUrl}`);
+  constructor(apiBaseUrl: string = 'http://localhost:3001') {
+    this.apiBaseUrl = apiBaseUrl;
   }
 
   // API URL'i güncelle (Railway deploy sonrası)
   setApiUrl(url: string): void {
     this.apiBaseUrl = url;
     this.cache.clear(); // URL değiştiğinde cache temizle
-    console.log(`🔗 API URL güncellendi: ${this.apiBaseUrl}`);
   }
 
   // Ana arama fonksiyonu
@@ -45,13 +42,7 @@ class ApiAddressService {
       console.log(`🔍 API Arama: "${query}"`);
       
       const response = await fetch(
-        `${this.apiBaseUrl}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        `${this.apiBaseUrl}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`
       );
       
       if (!response.ok) {
@@ -70,9 +61,10 @@ class ApiAddressService {
     } catch (error) {
       console.error('❌ API Arama Hatası:', error);
       
-      // API çalışmıyorsa boş array döndür
-      console.log('⚠️ API çalışmıyor, boş sonuç döndürülüyor');
-      return [];
+      // Fallback: Local service kullan
+      console.log('🔄 Local service\'e geçiliyor...');
+      const { addressService } = await import('./AddressService');
+      return addressService.search(query, limit);
     }
   }
 
@@ -132,11 +124,6 @@ class ApiAddressService {
   // Cache temizle
   clearCache(): void {
     this.cache.clear();
-  }
-
-  // Current API URL'i getir
-  getApiUrl(): string {
-    return this.apiBaseUrl;
   }
 }
 
