@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { getFullAddressFromMahalleId } from '../data/dataService';
 import { apiAddressService } from '../services/ApiAddressService';
 
 interface SearchResult {
@@ -147,38 +146,48 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
 
   // Seçim işlemi
   const handleSelect = (result: SearchResult) => {
-    console.log('📍 Adres seçildi:', result);
-    
-    if (result.type === 'Mahalle') {
-      const fullAddressData = getFullAddressFromMahalleId(result.quarterId);
-      
-      onAddressSelect({
-        il: fullAddressData.sehirId,
-        ilce: fullAddressData.ilceId,
-        mahalle: result.quarterId,
-        cadde: '',
-        sokak: '',
-        ilAdi: fullAddressData.sehir,
-        ilceAdi: fullAddressData.ilce,
-        mahalleAdi: fullAddressData.mahalle
-      });
-    } else {
-      // Cadde/sokak seçimi
-      onAddressSelect({
-        il: '',
-        ilce: '',
-        mahalle: '',
-        cadde: ['Cadde', 'Bulvar'].includes(result.type) ? result.name : '',
-        sokak: result.type === 'Sokak' ? result.name : '',
-        ilAdi: '',
-        ilceAdi: '',
-        mahalleAdi: ''
-      });
-    }
-
-    setSearchTerm(result.fullAddress.toUpperCase()); // Cursorrools.md: Otomatik büyük harf
+    setSearchTerm(result.name);
+    setResults([]);
     setShowResults(false);
-    setSelectedIndex(-1);
+    
+    if (onAddressSelect) {
+      if (result.type === 'Mahalle') {
+        // fullAddress'den bilgileri parse et (örn: "MAHALLE, ILCE, IL")
+        const addressParts = result.fullAddress.split(', ');
+        const mahalleAdi = addressParts[0] || result.name;
+        const ilceAdi = addressParts[1] || '';
+        const ilAdi = addressParts[2] || '';
+        
+        onAddressSelect({
+          il: result.cityId,
+          ilce: result.districtId,
+          mahalle: result.quarterId,
+          cadde: '',
+          sokak: '',
+          ilAdi: ilAdi,
+          ilceAdi: ilceAdi,
+          mahalleAdi: mahalleAdi
+        });
+      } else {
+        // Cadde/Sokak için
+        const addressParts = result.fullAddress.split(', ');
+        const sokakAdi = addressParts[0] || result.name;
+        const mahalleAdi = addressParts[1] || '';
+        const ilceAdi = addressParts[2] || '';
+        const ilAdi = addressParts[3] || '';
+        
+        onAddressSelect({
+          il: result.cityId,
+          ilce: result.districtId,
+          mahalle: result.quarterId,
+          cadde: result.type === 'Cadde' || result.type === 'Bulvar' ? sokakAdi : '',
+          sokak: result.type === 'Sokak' ? sokakAdi : '',
+          ilAdi: ilAdi,
+          ilceAdi: ilceAdi,
+          mahalleAdi: mahalleAdi
+        });
+      }
+    }
   };
 
   // Input değişikliği - Cursorrools.md: Otomatik büyük harf

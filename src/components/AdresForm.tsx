@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import CustomInput from './CustomInput';
 import CustomSelect from './CustomSelect';
 import AddressSearch from './AddressSearch';
-import { AdresForm } from '../data/types';
-import { 
-  getSehirler, 
-  getIlcelerBySehirId, 
-  getMahallelerByIlceId 
-} from '../data/dataService';
+import { apiAddressService } from '../services/ApiAddressService';
+
+// AdresForm tipini burada tanımlayalım
+interface AdresForm {
+  il: string;
+  ilce: string;
+  mahalle: string;
+  cadde: string;
+  sokak: string;
+  apartman: string;
+  daire: string;
+  aciklama: string;
+}
 
 const AdresFormComponent: React.FC = () => {
   const [formData, setFormData] = useState<AdresForm>({
@@ -28,31 +35,52 @@ const AdresFormComponent: React.FC = () => {
 
   // Şehirler listesini yükle
   useEffect(() => {
-    const sehirlerData = getSehirler();
-    setSehirler(sehirlerData);
+    const loadSehirler = async () => {
+      try {
+        const sehirlerData = await apiAddressService.getCities();
+        setSehirler(sehirlerData);
+      } catch (error) {
+        console.error('Şehirler yüklenirken hata:', error);
+      }
+    };
+    loadSehirler();
   }, []);
 
-  // İl seçimi değiştiğinde ilçeleri yükle
+  // İl değiştiğinde ilçeleri yükle
   useEffect(() => {
     if (formData.il) {
-      const ilcelerData = getIlcelerBySehirId(formData.il);
-      setIlceler(ilcelerData);
-      // İl değiştiğinde ilçe ve mahalle seçimini sıfırla
-      setFormData(prev => ({ ...prev, ilce: '', mahalle: '' }));
-      setMahalleler([]);
+      const loadIlceler = async () => {
+        try {
+          const ilcelerData = await apiAddressService.getDistricts(formData.il);
+          setIlceler(ilcelerData);
+          // İl değiştiğinde ilçe ve mahalle seçimini sıfırla
+          setFormData(prev => ({ ...prev, ilce: '', mahalle: '' }));
+          setMahalleler([]);
+        } catch (error) {
+          console.error('İlçeler yüklenirken hata:', error);
+        }
+      };
+      loadIlceler();
     } else {
       setIlceler([]);
       setMahalleler([]);
     }
   }, [formData.il]);
 
-  // İlçe seçimi değiştiğinde mahalleleri yükle
+  // İlçe değiştiğinde mahalleleri yükle
   useEffect(() => {
     if (formData.ilce) {
-      const mahallelerData = getMahallelerByIlceId(formData.ilce);
-      setMahalleler(mahallelerData);
-      // İlçe değiştiğinde mahalle seçimini sıfırla
-      setFormData(prev => ({ ...prev, mahalle: '' }));
+      const loadMahalleler = async () => {
+        try {
+          const mahallelerData = await apiAddressService.getNeighborhoods(formData.ilce);
+          setMahalleler(mahallelerData);
+          // İlçe değiştiğinde mahalle seçimini sıfırla
+          setFormData(prev => ({ ...prev, mahalle: '' }));
+        } catch (error) {
+          console.error('Mahalleler yüklenirken hata:', error);
+        }
+      };
+      loadMahalleler();
     } else {
       setMahalleler([]);
     }
@@ -65,7 +93,7 @@ const AdresFormComponent: React.FC = () => {
     }));
   };
 
-  const handleAddressSelect = (address: {
+  const handleAddressSelect = async (address: {
     il: string;
     ilce: string;
     mahalle: string;
@@ -75,6 +103,7 @@ const AdresFormComponent: React.FC = () => {
     ilceAdi: string;
     mahalleAdi: string;
   }) => {
+    // Form verilerini güncelle
     setFormData(prev => ({
       ...prev,
       il: address.il,
@@ -85,11 +114,15 @@ const AdresFormComponent: React.FC = () => {
     }));
     
     // Dropdown'ları güncelle
-    const ilcelerData = getIlcelerBySehirId(address.il);
-    setIlceler(ilcelerData);
-    
-    const mahallelerData = getMahallelerByIlceId(address.ilce);
-    setMahalleler(mahallelerData);
+    try {
+      const ilcelerData = await apiAddressService.getDistricts(address.il);
+      setIlceler(ilcelerData);
+      
+      const mahallelerData = await apiAddressService.getNeighborhoods(address.ilce);
+      setMahalleler(mahallelerData);
+    } catch (error) {
+      console.error('Dropdown veriler yüklenirken hata:', error);
+    }
   };
 
   const handleTemizle = () => {

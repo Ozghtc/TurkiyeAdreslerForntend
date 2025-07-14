@@ -61,10 +61,9 @@ class ApiAddressService {
     } catch (error) {
       console.error('❌ API Arama Hatası:', error);
       
-      // Fallback: Local service kullan
-      console.log('🔄 Local service\'e geçiliyor...');
-      const { addressService } = await import('./AddressService');
-      return addressService.search(query, limit);
+      // API hatası durumunda boş array döndür
+      console.log('⚠️ API kullanılamıyor, boş sonuç döndürülüyor...');
+      return [];
     }
   }
 
