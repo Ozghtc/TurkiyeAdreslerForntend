@@ -1,0 +1,20 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+  
+[build.environment]
+  REACT_APP_API_URL = "https://rare-courage-production.up.railway.app"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+
+[build.processing.js]
+  bundle = true 
