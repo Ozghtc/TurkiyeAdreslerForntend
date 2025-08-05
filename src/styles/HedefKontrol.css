@@ -2,7 +2,7 @@
 
 .hedef-kontrol-container {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
@@ -25,19 +25,124 @@
   opacity: 0.9;
 }
 
+/* GENEL SAYILAR STILLER */
+.genel-sayilar-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.genel-sayilar-baslik {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.genel-sayilar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.sayilar-kartı {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sayilar-kartı:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.kart-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.kart-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.kart-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sayi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.label {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.hedef-sayi {
+  font-weight: bold;
+  color: #4facfe;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.eklenen-sayi {
+  font-weight: bold;
+  color: #ff6b6b;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.oran-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0 5px 0;
+}
+
+.oran-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  border-radius: 4px;
+  transition: width 0.8s ease-in-out;
+  box-shadow: 0 2px 4px rgba(79, 172, 254, 0.3);
+}
+
+.oran-text {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #4facfe;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* İLLER TABLO STILLER */
 .iller-tablo-container {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 20px;
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  overflow-x: auto;
 }
 
 .tablo-baslik {
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin-bottom: 20px;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
@@ -78,17 +183,27 @@
 }
 
 .iller-tablosu td {
-  padding: 12px 10px;
+  padding: 8px 6px;
   text-align: center;
   color: #333;
-  font-size: 1rem;
+  font-size: 0.9rem;
   border-right: 1px solid #e0e0e0;
+  white-space: nowrap;
 }
 
-.iller-tablosu td:first-child {
+.iller-tablosu td.il-adi {
   font-weight: bold;
   text-align: left;
   color: #2c3e50;
+  font-size: 1rem;
+  padding-left: 12px;
+  min-width: 100px;
+}
+
+.iller-tablosu td.eklenen {
+  color: #e74c3c;
+  font-weight: bold;
+  background-color: rgba(231, 76, 60, 0.05);
 }
 
 .iller-tablosu td:last-child {
@@ -112,22 +227,72 @@
   .hedef-header h1 {
     font-size: 2rem;
   }
-  
+
+  .genel-sayilar-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+  }
+
+  .sayilar-kartı {
+    padding: 15px;
+  }
+
+  .kart-header h3 {
+    font-size: 1rem;
+  }
+
+  .sayi-row {
+    font-size: 0.85rem;
+  }
+
+  .genel-sayilar-baslik,
   .tablo-baslik {
     font-size: 1.5rem;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
   }
   
   .iller-tablosu {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   
   .iller-tablosu th,
   .iller-tablosu td {
-    padding: 8px 5px;
+    padding: 6px 4px;
   }
   
   .iller-tablosu th {
+    font-size: 0.8rem;
+  }
+
+  .iller-tablosu td.il-adi {
     font-size: 0.9rem;
+    padding-left: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .genel-sayilar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hedef-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .hedef-header p {
+    font-size: 1rem;
+  }
+
+  .iller-tablo-container {
+    padding: 15px;
+  }
+
+  .iller-tablosu {
+    font-size: 0.75rem;
+  }
+
+  .iller-tablosu th,
+  .iller-tablosu td {
+    padding: 4px 2px;
   }
 }
