@@ -138,4 +138,6 @@ class StatsService {
   }
 }
 
-export default new StatsService();
+// ESLint rule fix: assign to variable before exporting
+const statsService = new StatsService();
+export default statsService;
