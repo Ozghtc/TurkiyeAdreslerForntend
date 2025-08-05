@@ -21,9 +21,8 @@ class ApiAddressService {
 
   constructor(apiBaseUrl?: string) {
     // Environment variable'dan API URL'i al, yoksa Railway production URL'i kullan
-    this.apiBaseUrl = apiBaseUrl || 
-      process.env.REACT_APP_API_URL || 
-      'https://rare-courage-production.up.railway.app';
+        this.apiBaseUrl = apiBaseUrl ||
+      process.env.REACT_APP_API_URL;
   }
 
   // API URL'i güncelle (Railway deploy sonrası)

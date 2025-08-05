@@ -34,7 +34,7 @@ export interface CityStatsResponse {
 }
 
 class StatsService {
-  private readonly API_BASE = process.env.REACT_APP_API_URL || 'https://rare-courage-production.up.railway.app';
+  private readonly API_BASE = process.env.REACT_APP_API_URL;
 
   /**
    * Genel istatistikleri getir (toplam sayılar)
