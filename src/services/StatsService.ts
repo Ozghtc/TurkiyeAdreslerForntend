@@ -54,27 +54,9 @@ class StatsService {
       
       return data;
     } catch (error) {
-      console.error('❌ Genel istatistik servisi hatası:', error);
-      console.log('🔄 Mock data kullanılıyor - Backend hazırlanıyor...');
-      
-      // Mock data - Backend hazır olana kadar
-      return {
-        success: true,
-        stats: {
-          il: 1,      // İstanbul verisi mevcut
-          ilce: 39,   // İstanbul ilçeleri
-          mahalle: 963, // İstanbul mahalleleri
-          koy: 0,
-          sokak: 18859  // İstanbul caddeleri
-        },
-        hedefler: {
-          il: 81,
-          ilce: 973,
-          mahalle: 32408,
-          koy: 18633,
-          sokak: 1251158
-        }
-      };
+      console.error('❌ Backend API hatası - Production ortamında mock data kullanılmaz:', error);
+      // KURAL 16 & 18: Mock data yasak, backend düzeltmesi gerekli
+      throw new Error('API service unavailable - Backend düzeltmesi gerekli');
     }
   }
 
@@ -96,46 +78,9 @@ class StatsService {
       
       return data;
     } catch (error) {
-      console.error('❌ İl istatistik servisi hatası:', error);
-      
-      // Mock data - Backend hazır olana kadar
-      console.log('🔄 İl bazında mock data kullanılıyor...');
-      return {
-        success: true,
-        cities: [
-          {
-            id: 34,
-            name: 'İstanbul',
-            code: '34',
-            stats: { il: 1, ilce: 39, mahalle: 963, koy: 0, cadde: 18859, sokak: 87000 }
-          },
-          {
-            id: 6,
-            name: 'Ankara',
-            code: '06',
-            stats: { il: 1, ilce: 25, mahalle: 1417, koy: 892, cadde: 23000, sokak: 43000 }
-          },
-          {
-            id: 35,
-            name: 'İzmir',
-            code: '35',
-            stats: { il: 1, ilce: 30, mahalle: 1129, koy: 734, cadde: 18000, sokak: 35000 }
-          },
-          {
-            id: 16,
-            name: 'Bursa',
-            code: '16',
-            stats: { il: 1, ilce: 17, mahalle: 855, koy: 423, cadde: 12000, sokak: 25000 }
-          },
-          {
-            id: 7,
-            name: 'Antalya',
-            code: '07',
-            stats: { il: 1, ilce: 19, mahalle: 669, koy: 543, cadde: 8000, sokak: 18000 }
-          }
-        ],
-        count: 5
-      };
+      console.error('❌ Backend API hatası - Production ortamında mock data kullanılmaz:', error);
+      // KURAL 16 & 18: Mock data yasak, backend düzeltmesi gerekli
+      throw new Error('API service unavailable - Backend düzeltmesi gerekli');
     }
   }
 
