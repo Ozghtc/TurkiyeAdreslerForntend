@@ -19,8 +19,11 @@ class ApiAddressService {
   private apiBaseUrl: string;
   private cache: Map<string, ApiSearchResult[]> = new Map();
 
-  constructor(apiBaseUrl: string = 'http://localhost:3001') {
-    this.apiBaseUrl = apiBaseUrl;
+  constructor(apiBaseUrl?: string) {
+    // Environment variable'dan API URL'i al, yoksa Railway production URL'i kullan
+    this.apiBaseUrl = apiBaseUrl || 
+      process.env.REACT_APP_API_URL || 
+      'https://rare-courage-production.up.railway.app';
   }
 
   // API URL'i güncelle (Railway deploy sonrası)
