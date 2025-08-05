@@ -3,7 +3,7 @@
   publish = "build"
   
 [build.environment]
-  REACT_APP_API_URL = "https://rare-courage-production.up.railway.app"
+  REACT_APP_API_URL = "https://turkiyeadreslerbackend-production.up.railway.app"
 
 [[redirects]]
   from = "/*"
