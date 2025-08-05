@@ -20,9 +20,16 @@ class ApiAddressService {
   private cache: Map<string, ApiSearchResult[]> = new Map();
 
   constructor(apiBaseUrl?: string) {
-    // Environment variable'dan API URL'i al, yoksa Railway production URL'i kullan
-        this.apiBaseUrl = apiBaseUrl ||
-      process.env.REACT_APP_API_URL;
+    // Environment variable kontrolü - CURSORROOLS.MD KURAL 17 uyumu
+    const envApiUrl = process.env.REACT_APP_API_URL;
+    
+    if (apiBaseUrl) {
+      this.apiBaseUrl = apiBaseUrl;
+    } else if (envApiUrl) {
+      this.apiBaseUrl = envApiUrl;
+    } else {
+      throw new Error('REACT_APP_API_URL environment variable is required');
+    }
   }
 
   // API URL'i güncelle (Railway deploy sonrası)

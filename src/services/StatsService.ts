@@ -34,7 +34,16 @@ export interface CityStatsResponse {
 }
 
 class StatsService {
-  private readonly API_BASE = process.env.REACT_APP_API_URL;
+  private readonly API_BASE: string;
+
+  constructor() {
+    // Environment variable kontrolü - CURSORROOLS.MD KURAL 17 uyumu
+    const envApiUrl = process.env.REACT_APP_API_URL;
+    if (!envApiUrl) {
+      throw new Error('REACT_APP_API_URL environment variable is required');
+    }
+    this.API_BASE = envApiUrl;
+  }
 
   /**
    * Genel istatistikleri getir (toplam sayılar)
