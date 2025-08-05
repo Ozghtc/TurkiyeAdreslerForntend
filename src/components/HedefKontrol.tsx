@@ -1,24 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/HedefKontrol.css';
+import StatsService, { GeneralStats, CityStats } from '../services/StatsService';
 
 const HedefKontrol: React.FC = () => {
-  // Türkiye Adres Verisi Hedef Sayıları (TURKIYE_ADRES_VERISI_EKOSISTEMI.md'den)
-  const genelHedefler = {
+  // State tanımlamaları
+  const [genelHedefler, setGenelHedefler] = useState<GeneralStats>({
     il: 81,
     ilce: 973,
     mahalle: 32408,
     koy: 18633,
     sokak: 1251158
-  };
+  });
 
-  // Şu anki eklenen sayılar (backend'den gelecek - şu an 0)
-  const genelEklenen = {
+  const [genelEklenen, setGenelEklenen] = useState<GeneralStats>({
     il: 0,
     ilce: 0,
     mahalle: 0,
     koy: 0,
     sokak: 0
-  };
+  });
+
+  const [cityStats, setCityStats] = useState<CityStats[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [apiStatus, setApiStatus] = useState<boolean>(false);
+
+  // API verilerini yükle
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      
+      try {
+        // API durumunu kontrol et
+        const healthCheck = await StatsService.checkApiHealth();
+        setApiStatus(healthCheck);
+
+        // Genel istatistikleri yükle
+        const generalStatsResponse = await StatsService.getGeneralStats();
+        if (generalStatsResponse.success) {
+          setGenelEklenen(generalStatsResponse.stats);
+          setGenelHedefler(generalStatsResponse.hedefler);
+        }
+
+        // İl bazında istatistikleri yükle
+        const cityStatsResponse = await StatsService.getCityStats();
+        if (cityStatsResponse.success) {
+          setCityStats(cityStatsResponse.cities);
+        }
+
+      } catch (error) {
+        console.error('❌ Veri yükleme hatası:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Tamamlanma oranları hesaplama
   const hesaplaOran = (eklenen: number, hedef: number): string => {
@@ -30,6 +67,12 @@ const HedefKontrol: React.FC = () => {
       <div className="hedef-header">
         <h1>🎯 HEDEF KONTROL PANELİ</h1>
         <p>Türkiye Adres Verisi Durumu</p>
+        <div className="api-status">
+          <span className={`status-indicator ${apiStatus ? 'online' : 'offline'}`}>
+            {apiStatus ? '🟢 API Aktif' : '🔴 API Çevrimdışı'}
+          </span>
+          {loading && <span className="loading-text">📊 Veriler yükleniyor...</span>}
+        </div>
       </div>
 
       {/* GENEL SAYILAR BÖLÜMü */}
@@ -170,39 +213,44 @@ const HedefKontrol: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {/* Sample data - backend'den gelecek */}
-            <tr>
-              <td className="il-adi">İstanbul</td>
-              <td>1</td><td className="eklenen">0</td>
-              <td>39</td><td className="eklenen">0</td>
-              <td>963</td><td className="eklenen">0</td>
-              <td>0</td><td className="eklenen">0</td>
-              <td>45,000</td><td className="eklenen">0</td>
-              <td>87,000</td><td className="eklenen">0</td>
-            </tr>
-            <tr>
-              <td className="il-adi">Ankara</td>
-              <td>1</td><td className="eklenen">0</td>
-              <td>25</td><td className="eklenen">0</td>
-              <td>1,417</td><td className="eklenen">0</td>
-              <td>892</td><td className="eklenen">0</td>
-              <td>23,000</td><td className="eklenen">0</td>
-              <td>43,000</td><td className="eklenen">0</td>
-            </tr>
-            <tr>
-              <td className="il-adi">İzmir</td>
-              <td>1</td><td className="eklenen">0</td>
-              <td>30</td><td className="eklenen">0</td>
-              <td>1,129</td><td className="eklenen">0</td>
-              <td>734</td><td className="eklenen">0</td>
-              <td>18,000</td><td className="eklenen">0</td>
-              <td>35,000</td><td className="eklenen">0</td>
-            </tr>
-            <tr>
-              <td colSpan={13} className="veri-yukleniyor">
-                📊 Tüm 81 ilin verileri backend'den yüklenecek...
-              </td>
-            </tr>
+            {loading ? (
+              <tr>
+                <td colSpan={13} className="veri-yukleniyor">
+                  📊 Veriler yükleniyor...
+                </td>
+              </tr>
+            ) : cityStats.length > 0 ? (
+              cityStats.slice(0, 10).map((city) => (
+                <tr key={city.id}>
+                  <td className="il-adi">{city.name}</td>
+                  <td>{city.stats.il}</td>
+                  <td className="eklenen">{city.stats.il}</td>
+                  <td>--</td> {/* Genel hedef ilçe sayısı */}
+                  <td className="eklenen">{city.stats.ilce}</td>
+                  <td>--</td> {/* Genel hedef mahalle sayısı */}
+                  <td className="eklenen">{city.stats.mahalle}</td>
+                  <td>--</td> {/* Genel hedef köy sayısı */}
+                  <td className="eklenen">{city.stats.koy}</td>
+                  <td>--</td> {/* Genel hedef cadde sayısı */}
+                  <td className="eklenen">{city.stats.cadde}</td>
+                  <td>--</td> {/* Genel hedef sokak sayısı */}
+                  <td className="eklenen">{city.stats.sokak}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={13} className="veri-yukleniyor">
+                  {apiStatus ? '📊 Veri bulunamadı' : '🔴 API bağlantısı kurulamadı'}
+                </td>
+              </tr>
+            )}
+            {cityStats.length > 10 && (
+              <tr>
+                <td colSpan={13} className="veri-yukleniyor">
+                  📊 +{cityStats.length - 10} il daha var (İlk 10 gösteriliyor)
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
