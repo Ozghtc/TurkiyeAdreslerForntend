@@ -2,19 +2,6 @@ import React, { useState, useEffect } from 'react';
 import '../styles/ExikVerilerFiltresi.css';
 
 // Types
-interface RawDataIlce {
-  kimlikNo: number;
-  adi: string;
-  bilesenAdi: string;
-  ilKimlikNo: number;
-}
-
-interface BackendIlce {
-  ilce_id: number;
-  ilce_adi: string;
-  sehir_id: number;
-}
-
 interface EksikIlce {
   ilce_id: number;
   ilce_adi: string;
