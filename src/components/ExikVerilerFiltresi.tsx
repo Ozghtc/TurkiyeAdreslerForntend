@@ -2,19 +2,29 @@ import React, { useState, useEffect } from 'react';
 import '../styles/ExikVerilerFiltresi.css';
 
 // Types
-interface EksikIlce {
-  ilce_id: number;
-  ilce_adi: string;
+interface IlVeriDurumu {
   il_id: number;
   il_adi: string;
-  status: 'eksik' | 'mevcut';
+  il_durumu: 'mevcut' | 'eksik';
+  ilce_mevcut: number;
+  ilce_hedef: number;
+  ilce_durumu: 'tamamlandi' | 'eksik' | 'kismli';
+  mahalle_mevcut: number;
+  mahalle_hedef: number;
+  mahalle_durumu: 'tamamlandi' | 'eksik' | 'kismli';
+  koy_mevcut: number;
+  koy_hedef: number;
+  koy_durumu: 'tamamlandi' | 'eksik' | 'kismli';
+  sokak_mevcut: number;
+  sokak_hedef: number;
+  sokak_durumu: 'tamamlandi' | 'eksik' | 'kismli';
 }
 
 const ExikVerilerFiltresi: React.FC = () => {
-  const [eksikIlceler, setEksikIlceler] = useState<EksikIlce[]>([]);
+  const [ilVeriDurumlari, setIlVeriDurumlari] = useState<IlVeriDurumu[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedIl, setSelectedIl] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'eksik' | 'mevcut'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'eksik' | 'tamamlandi' | 'kismli'>('all');
   
   // Dummy data - gerçek implementasyon API'den gelecek
   useEffect(() => {
@@ -23,16 +33,61 @@ const ExikVerilerFiltresi: React.FC = () => {
       
       try {
         // Bu örnek veri - gerçekte API'den gelecek
-        const dummyData: EksikIlce[] = [
-          { ilce_id: 1001, ilce_adi: 'ALADAĞ', il_id: 1, il_adi: 'ADANA', status: 'mevcut' },
-          { ilce_id: 1002, ilce_adi: 'CEYHAN', il_id: 1, il_adi: 'ADANA', status: 'eksik' },
-          { ilce_id: 1003, ilce_adi: 'ÇUKUROVA', il_id: 1, il_adi: 'ADANA', status: 'eksik' },
-          { ilce_id: 3401, ilce_adi: 'ADALAR', il_id: 34, il_adi: 'İSTANBUL', status: 'mevcut' },
-          { ilce_id: 3402, ilce_adi: 'ARNAVUTKÖY', il_id: 34, il_adi: 'İSTANBUL', status: 'eksik' },
-          { ilce_id: 3403, ilce_adi: 'ATAŞEHİR', il_id: 34, il_adi: 'İSTANBUL', status: 'eksik' },
+        const dummyData: IlVeriDurumu[] = [
+          { 
+            il_id: 1, 
+            il_adi: 'ADANA', 
+            il_durumu: 'mevcut',
+            ilce_mevcut: 13, 
+            ilce_hedef: 15, 
+            ilce_durumu: 'kismli',
+            mahalle_mevcut: 0, 
+            mahalle_hedef: 572, 
+            mahalle_durumu: 'eksik',
+            koy_mevcut: 0, 
+            koy_hedef: 198, 
+            koy_durumu: 'eksik',
+            sokak_mevcut: 0, 
+            sokak_hedef: 15420, 
+            sokak_durumu: 'eksik'
+          },
+          { 
+            il_id: 34, 
+            il_adi: 'İSTANBUL', 
+            il_durumu: 'mevcut',
+            ilce_mevcut: 37, 
+            ilce_hedef: 39, 
+            ilce_durumu: 'kismli',
+            mahalle_mevcut: 0, 
+            mahalle_hedef: 963, 
+            mahalle_durumu: 'eksik',
+            koy_mevcut: 0, 
+            koy_hedef: 2, 
+            koy_durumu: 'eksik',
+            sokak_mevcut: 0, 
+            sokak_hedef: 128547, 
+            sokak_durumu: 'eksik'
+          },
+          { 
+            il_id: 6, 
+            il_adi: 'ANKARA', 
+            il_durumu: 'mevcut',
+            ilce_mevcut: 25, 
+            ilce_hedef: 25, 
+            ilce_durumu: 'tamamlandi',
+            mahalle_mevcut: 0, 
+            mahalle_hedef: 689, 
+            mahalle_durumu: 'eksik',
+            koy_mevcut: 0, 
+            koy_hedef: 856, 
+            koy_durumu: 'eksik',
+            sokak_mevcut: 0, 
+            sokak_hedef: 42358, 
+            sokak_durumu: 'eksik'
+          }
         ];
         
-        setEksikIlceler(dummyData);
+        setIlVeriDurumlari(dummyData);
       } catch (error) {
         console.error('❌ Filtreleme verisi yüklenirken hata:', error);
       } finally {
@@ -44,21 +99,32 @@ const ExikVerilerFiltresi: React.FC = () => {
   }, []);
 
   // Filtreleme
-  const filteredData = eksikIlceler.filter(ilce => {
-    const ilFilter = selectedIl === 'all' || ilce.il_id.toString() === selectedIl;
-    const statusFilterMatch = statusFilter === 'all' || ilce.status === statusFilter;
-    return ilFilter && statusFilterMatch;
+  const filteredData = ilVeriDurumlari.filter(il => {
+    const ilFilter = selectedIl === 'all' || il.il_id.toString() === selectedIl;
+    
+    // Durum filtresi - herhangi bir veri türü filtre kriteriyle eşleşiyorsa göster
+    if (statusFilter === 'all') return ilFilter;
+    
+    const hasStatus = 
+      il.ilce_durumu === statusFilter ||
+      il.mahalle_durumu === statusFilter ||
+      il.koy_durumu === statusFilter ||
+      il.sokak_durumu === statusFilter;
+    
+    return ilFilter && hasStatus;
   });
 
   // İl listesi için unique değerler
-  const uniqueIller = Array.from(new Set(eksikIlceler.map(ilce => ({ id: ilce.il_id, adi: ilce.il_adi }))))
+  const uniqueIller = ilVeriDurumlari
+    .map(il => ({ id: il.il_id, adi: il.il_adi }))
     .sort((a, b) => a.adi.localeCompare(b.adi));
 
-  // İstatistikler
+  // İstatistikler - genel durum özeti
   const stats = {
-    toplam: eksikIlceler.length,
-    eksik: eksikIlceler.filter(ilce => ilce.status === 'eksik').length,
-    mevcut: eksikIlceler.filter(ilce => ilce.status === 'mevcut').length,
+    toplam_il: ilVeriDurumlari.length,
+    eksik_mahalle: ilVeriDurumlari.filter(il => il.mahalle_durumu === 'eksik').length,
+    eksik_sokak: ilVeriDurumlari.filter(il => il.sokak_durumu === 'eksik').length,
+    kismli_ilce: ilVeriDurumlari.filter(il => il.ilce_durumu === 'kismli').length,
   };
 
   return (
@@ -70,16 +136,20 @@ const ExikVerilerFiltresi: React.FC = () => {
         {/* İstatistikler */}
         <div className="filter-stats">
           <div className="stat-card">
-            <span className="stat-label">Toplam İlçe</span>
-            <span className="stat-value">{stats.toplam}</span>
+            <span className="stat-label">Toplam İl</span>
+            <span className="stat-value">{stats.toplam_il}</span>
           </div>
           <div className="stat-card eksik">
-            <span className="stat-label">Eksik</span>
-            <span className="stat-value">{stats.eksik}</span>
+            <span className="stat-label">Eksik Mahalle</span>
+            <span className="stat-value">{stats.eksik_mahalle}</span>
           </div>
           <div className="stat-card mevcut">
-            <span className="stat-label">Mevcut</span>
-            <span className="stat-value">{stats.mevcut}</span>
+            <span className="stat-label">Eksik Sokak</span>
+            <span className="stat-value">{stats.eksik_sokak}</span>
+          </div>
+          <div className="stat-card kismli">
+            <span className="stat-label">Kısmi İlçe</span>
+            <span className="stat-value">{stats.kismli_ilce}</span>
           </div>
         </div>
       </div>
@@ -107,9 +177,10 @@ const ExikVerilerFiltresi: React.FC = () => {
             value={statusFilter} 
             onChange={(e) => setStatusFilter(e.target.value as any)}
           >
-            <option value="all">Hepsi</option>
-            <option value="eksik">Sadece Eksik</option>
-            <option value="mevcut">Sadece Mevcut</option>
+            <option value="all">Tüm Durumlar</option>
+            <option value="eksik">Eksik Veriler</option>
+            <option value="kismli">Kısmi Tamamlanmış</option>
+            <option value="tamamlandi">Tamamlanmış</option>
           </select>
         </div>
       </div>
@@ -123,32 +194,86 @@ const ExikVerilerFiltresi: React.FC = () => {
             <thead>
               <tr>
                 <th>İl</th>
-                <th>İlçe Adı</th>
-                <th>İlçe ID</th>
-                <th>Durum</th>
-                <th>İşlem</th>
+                <th>İlçe</th>
+                <th>Mahalle</th>
+                <th>Köy</th>
+                <th>Sokak</th>
+                <th>İşlemler</th>
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((ilce) => (
-                <tr key={ilce.ilce_id} className={`row-${ilce.status}`}>
-                  <td>{ilce.il_adi}</td>
-                  <td>{ilce.ilce_adi}</td>
-                  <td>{ilce.ilce_id}</td>
+              {filteredData.map((il) => (
+                <tr key={il.il_id} className="row-il">
                   <td>
-                    <span className={`status-badge ${ilce.status}`}>
-                      {ilce.status === 'eksik' ? '❌ Eksik' : '✅ Mevcut'}
-                    </span>
+                    <div className="veri-cell">
+                      <strong>{il.il_adi}</strong>
+                      <span className={`status-badge ${il.il_durumu}`}>
+                        {il.il_durumu === 'mevcut' ? '✅' : '❌'}
+                      </span>
+                    </div>
                   </td>
                   <td>
-                    {ilce.status === 'eksik' && (
-                      <button 
-                        className="import-btn"
-                        onClick={() => console.log('Import:', ilce.ilce_id)}
-                      >
-                        📥 Import Et
-                      </button>
-                    )}
+                    <div className="veri-cell">
+                      <span className="veri-sayi">{il.ilce_mevcut}/{il.ilce_hedef}</span>
+                      <span className={`status-badge ${il.ilce_durumu}`}>
+                        {il.ilce_durumu === 'tamamlandi' ? '✅' : il.ilce_durumu === 'kismli' ? '🟡' : '❌'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="veri-cell">
+                      <span className="veri-sayi">{il.mahalle_mevcut}/{il.mahalle_hedef}</span>
+                      <span className={`status-badge ${il.mahalle_durumu}`}>
+                        {il.mahalle_durumu === 'tamamlandi' ? '✅' : il.mahalle_durumu === 'kismli' ? '🟡' : '❌'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="veri-cell">
+                      <span className="veri-sayi">{il.koy_mevcut}/{il.koy_hedef}</span>
+                      <span className={`status-badge ${il.koy_durumu}`}>
+                        {il.koy_durumu === 'tamamlandi' ? '✅' : il.koy_durumu === 'kismli' ? '🟡' : '❌'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="veri-cell">
+                      <span className="veri-sayi">{il.sokak_mevcut}/{il.sokak_hedef}</span>
+                      <span className={`status-badge ${il.sokak_durumu}`}>
+                        {il.sokak_durumu === 'tamamlandi' ? '✅' : il.sokak_durumu === 'kismli' ? '🟡' : '❌'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      {(il.ilce_durumu === 'eksik' || il.ilce_durumu === 'kismli') && (
+                        <button 
+                          className="import-btn"
+                          onClick={() => console.log('İlçe Import:', il.il_id)}
+                          title="Eksik ilçeleri import et"
+                        >
+                          📥 İlçe
+                        </button>
+                      )}
+                      {il.mahalle_durumu === 'eksik' && (
+                        <button 
+                          className="import-btn"
+                          onClick={() => console.log('Mahalle Import:', il.il_id)}
+                          title="Mahalleleri import et"
+                        >
+                          📥 Mahalle
+                        </button>
+                      )}
+                      {il.sokak_durumu === 'eksik' && (
+                        <button 
+                          className="import-btn"
+                          onClick={() => console.log('Sokak Import:', il.il_id)}
+                          title="Sokakları import et"
+                        >
+                          📥 Sokak
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -167,9 +292,24 @@ const ExikVerilerFiltresi: React.FC = () => {
       <div className="bulk-actions">
         <button 
           className="bulk-import-btn"
-          disabled={filteredData.filter(ilce => ilce.status === 'eksik').length === 0}
+          onClick={() => console.log('Bulk İlçe Import')}
+          disabled={filteredData.filter(il => il.ilce_durumu === 'eksik' || il.ilce_durumu === 'kismli').length === 0}
         >
-          📥 Tüm Eksikleri Import Et ({filteredData.filter(ilce => ilce.status === 'eksik').length})
+          📥 Tüm Eksik İlçeleri Import Et ({filteredData.filter(il => il.ilce_durumu === 'eksik' || il.ilce_durumu === 'kismli').length})
+        </button>
+        <button 
+          className="bulk-import-btn"
+          onClick={() => console.log('Bulk Mahalle Import')}
+          disabled={filteredData.filter(il => il.mahalle_durumu === 'eksik').length === 0}
+        >
+          📥 Tüm Mahalleleri Import Et ({filteredData.filter(il => il.mahalle_durumu === 'eksik').length})
+        </button>
+        <button 
+          className="bulk-import-btn"
+          onClick={() => console.log('Bulk Sokak Import')}
+          disabled={filteredData.filter(il => il.sokak_durumu === 'eksik').length === 0}
+        >
+          📥 Tüm Sokakları Import Et ({filteredData.filter(il => il.sokak_durumu === 'eksik').length})
         </button>
       </div>
     </div>
