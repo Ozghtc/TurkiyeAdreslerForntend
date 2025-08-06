@@ -33,34 +33,42 @@ const ExikVerilerFiltresi: React.FC = () => {
       setLoading(true);
       
       try {
-        // Bu örnek veri - gerçekte API'den gelecek
-        const dummyData: EksikKayit[] = [
-          // Eksik İlçeler
-          { id: 1, il_adi: 'ADANA', il_id: 1, ilce_adi: 'CEYHAN', ilce_id: 1002, kayit_tipi: 'ilce' },
-          { id: 2, il_adi: 'ADANA', il_id: 1, ilce_adi: 'ÇUKUROVA', ilce_id: 1003, kayit_tipi: 'ilce' },
-          { id: 3, il_adi: 'İSTANBUL', il_id: 34, ilce_adi: 'ARNAVUTKÖY', ilce_id: 3402, kayit_tipi: 'ilce' },
-          { id: 4, il_adi: 'İSTANBUL', il_id: 34, ilce_adi: 'ATAŞEHİR', ilce_id: 3403, kayit_tipi: 'ilce' },
-          
-          // Eksik Mahalleler
-          { id: 11, il_adi: 'ADANA', il_id: 1, ilce_adi: 'SEYHAN', ilce_id: 1001, mahalle_adi: 'YENİ MAHALLE', mahalle_id: 10011, kayit_tipi: 'mahalle' },
-          { id: 12, il_adi: 'ADANA', il_id: 1, ilce_adi: 'SEYHAN', ilce_id: 1001, mahalle_adi: 'MERKEZ MAHALLE', mahalle_id: 10012, kayit_tipi: 'mahalle' },
-          { id: 13, il_adi: 'İSTANBUL', il_id: 34, ilce_adi: 'KADIKÖY', ilce_id: 3401, mahalle_adi: 'MODA', mahalle_id: 34011, kayit_tipi: 'mahalle' },
-          { id: 14, il_adi: 'İSTANBUL', il_id: 34, ilce_adi: 'ŞİŞLİ', ilce_id: 3404, mahalle_adi: 'MECİDİYE', mahalle_id: 34041, kayit_tipi: 'mahalle' },
-          { id: 15, il_adi: 'ANKARA', il_id: 6, ilce_adi: 'ÇANKAYA', ilce_id: 601, mahalle_adi: 'BAHÇELİ', mahalle_id: 6011, kayit_tipi: 'mahalle' },
-          
-          // Eksik Sokaklar  
-          { id: 21, il_adi: 'ADANA', il_id: 1, ilce_adi: 'SEYHAN', ilce_id: 1001, mahalle_adi: 'YENİ MAHALLE', mahalle_id: 10011, sokak_adi: 'ATATÜRK CADDESİ', sokak_id: 100111, kayit_tipi: 'sokak' },
-          { id: 22, il_adi: 'ADANA', il_id: 1, ilce_adi: 'SEYHAN', ilce_id: 1001, mahalle_adi: 'YENİ MAHALLE', mahalle_id: 10011, sokak_adi: 'İNÖNÜ SOKAK', sokak_id: 100112, kayit_tipi: 'sokak' },
-          { id: 23, il_adi: 'İSTANBUL', il_id: 34, ilce_adi: 'KADIKÖY', ilce_id: 3401, mahalle_adi: 'MODA', mahalle_id: 34011, sokak_adi: 'BAHARİYE CADDESİ', sokak_id: 340111, kayit_tipi: 'sokak' },
-          { id: 24, il_adi: 'ANKARA', il_id: 6, ilce_adi: 'ÇANKAYA', ilce_id: 601, mahalle_adi: 'BAHÇELİ', mahalle_id: 6011, sokak_adi: 'TUNALI CADDESİ', sokak_id: 60111, kayit_tipi: 'sokak' },
-          
-          // Eksik Köyler
-          { id: 31, il_adi: 'ADANA', il_id: 1, ilce_adi: 'KOZAN', ilce_id: 1005, koy_adi: 'ÇİFTLİK KÖYÜ', koy_id: 10051, kayit_tipi: 'koy' },
-          { id: 32, il_adi: 'ANKARA', il_id: 6, ilce_adi: 'KALECIK', ilce_id: 605, koy_adi: 'KIZILCA KÖYÜ', koy_id: 6051, kayit_tipi: 'koy' },
-        ];
+        // Backend API'den gerçek veri çek
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${apiUrl}/api/eski-adresler?tip=${veriTipiFilter}&il_kimlik=${selectedIl}&durum=eksik&limit=${MAX_RESULTS}`);
         
-        // İlk 300 ile sınırla
-        setEksikKayitlar(dummyData.slice(0, MAX_RESULTS));
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+        
+        const apiData = await response.json();
+        console.log('📊 API Response:', apiData);
+        
+        if (apiData.success) {
+          // Backend verisini frontend formatına dönüştür
+          const formattedData: EksikKayit[] = apiData.data.map((item: any) => ({
+            id: item.id,
+            il_adi: item.il_adi,
+            il_id: item.il_kimlik_no,
+            ilce_adi: item.ilce_adi,
+            ilce_id: item.ilce_kimlik_no,
+            mahalle_adi: item.mahalle_adi,
+            mahalle_id: item.mahalle_kimlik_no,
+            koy_adi: item.koy_adi,
+            koy_id: null, // Backend'de ayrı ID yok
+            sokak_adi: item.sokak_adi,
+            sokak_id: item.sokak_kimlik_no,
+            cadde_adi: item.sokak_tur_kod === 3 ? item.sokak_adi : null, // Cadde ise sokak_adi
+            cadde_id: item.sokak_tur_kod === 3 ? item.sokak_kimlik_no : null,
+            kayit_tipi: item.kayit_tipi as 'il' | 'ilce' | 'mahalle' | 'koy' | 'sokak' | 'cadde'
+          }));
+          
+          setEksikKayitlar(formattedData);
+          console.log(`✅ ${formattedData.length} eksik kayıt yüklendi`);
+        } else {
+          throw new Error(apiData.message || 'API başarısız');
+        }
+        
       } catch (error) {
         console.error('❌ Filtreleme verisi yüklenirken hata:', error);
       } finally {
@@ -69,7 +77,51 @@ const ExikVerilerFiltresi: React.FC = () => {
     };
 
     loadFilterData();
-  }, []);
+  }, [veriTipiFilter, selectedIl]); // Filter değiştiğinde yeniden yükle
+  
+  // Import fonksiyonu
+  const handleImport = async (kayitId: number, kayitTipi: string) => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${apiUrl}/api/eski-adresler/${kayitId}/import`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ ${kayitTipi} import edildi:`, result.data);
+        // Listeyi yenile (import edilen kaydı listeden çıkar)
+        setEksikKayitlar(prev => prev.filter(kayit => kayit.id !== kayitId));
+      } else {
+        console.error('❌ Import hatası:', result.error);
+        alert(`Import hatası: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('❌ Import API hatası:', error);
+      alert('Import sırasında bir hata oluştu!');
+    }
+  };
+  
+  // Toplu import fonksiyonu
+  const handleBulkImport = async () => {
+    const kayitIds = filteredData.slice(0, MAX_RESULTS).map(kayit => kayit.id);
+    
+    for (const kayitId of kayitIds) {
+      try {
+        await handleImport(kayitId, 'toplu');
+        // Her import arasında küçük gecikme (API yükünü azaltmak için)
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.error(`Import hatası (ID: ${kayitId}):`, error);
+      }
+    }
+    
+    console.log('✅ Toplu import tamamlandı');
+  };
 
   // Filtreleme
   const filteredData = eksikKayitlar.filter(kayit => {
@@ -221,7 +273,7 @@ const ExikVerilerFiltresi: React.FC = () => {
                   <td>
                     <button 
                       className="import-btn"
-                      onClick={() => console.log('Import:', kayit.kayit_tipi, kayit.id)}
+                      onClick={() => handleImport(kayit.id, kayit.kayit_tipi)}
                       title={`${kayit.kayit_tipi} import et`}
                     >
                       📥 Import
@@ -244,7 +296,7 @@ const ExikVerilerFiltresi: React.FC = () => {
       <div className="bulk-actions">
         <button 
           className="bulk-import-btn"
-          onClick={() => console.log('Bulk Import All:', veriTipiFilter)}
+          onClick={handleBulkImport}
           disabled={filteredData.length === 0}
         >
           📥 Gösterilen {filteredData.length} Kaydı Toplu Import Et
