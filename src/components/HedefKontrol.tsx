@@ -36,9 +36,14 @@ const HedefKontrol: React.FC = () => {
 
         // Genel istatistikleri yükle
         const generalStatsResponse = await StatsService.getGeneralStats();
+        console.log('📊 General Stats Response:', generalStatsResponse);
+        
         if (generalStatsResponse.success) {
+          console.log('✅ Stats başarıyla yüklendi:', generalStatsResponse.stats);
           setGenelEklenen(generalStatsResponse.stats);
           setGenelHedefler(generalStatsResponse.hedefler);
+        } else {
+          console.log('❌ Stats yüklenemedi');
         }
 
         // İl bazında istatistikleri yükle
