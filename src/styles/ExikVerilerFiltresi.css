@@ -238,17 +238,35 @@
 }
 
 /* Tablo satırları için yeni stil */
-.row-il:hover {
+.row-il:hover, .row-ilce:hover, .row-mahalle:hover, .row-koy:hover, .row-sokak:hover, .row-cadde:hover {
   background: rgba(79, 172, 254, 0.05);
 }
+
+/* Veri tipi bazında renk kodlama */
+.row-il { background: rgba(75, 192, 192, 0.02); }
+.row-ilce { background: rgba(255, 193, 7, 0.02); }
+.row-mahalle { background: rgba(255, 99, 132, 0.02); }
+.row-koy { background: rgba(54, 162, 235, 0.02); }
+.row-sokak { background: rgba(153, 102, 255, 0.02); }
+.row-cadde { background: rgba(255, 159, 64, 0.02); }
 
 /* Toplu İşlemler */
 .bulk-actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   gap: 15px;
   margin-top: 30px;
-  flex-wrap: wrap;
+}
+
+.limit-warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ff8f00;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .bulk-import-btn {
